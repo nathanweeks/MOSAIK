@@ -133,6 +133,7 @@ void CNaiveAlignmentSet::CalculateAlignmentQualities(const bool calculateCorrect
 */
 
 // calculates the correction coefficient
+/*
 double CNaiveAlignmentSet::CalculateCorrectionCoefficient(const unsigned short queryBegin, const unsigned short queryEnd, const MhpOccupancyList& mhpOccupancyList, const unsigned short minSpanLength) {
 	
 	// process the first mhp occupancy position that is within [queryBegin, queryEnd]
@@ -170,6 +171,7 @@ double CNaiveAlignmentSet::CalculateCorrectionCoefficient(const unsigned short q
 	// return the correction coefficient
 	return mor.BeginOccupancy * mor.EndOccupancy;
 }
+*/
 
 // checks if the current alignment is a subset of another alignment
 bool CNaiveAlignmentSet::CheckOverlap(const Alignment& al1, AlignmentSet::iterator& al2) {

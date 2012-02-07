@@ -87,7 +87,7 @@ public:
 
 private:
 	// calculates the correction coefficient
-	static double CalculateCorrectionCoefficient(const unsigned short queryBegin, const unsigned short queryEnd, const MhpOccupancyList& mhpOccupancyList, const unsigned short minSpanLength);
+	//static double CalculateCorrectionCoefficient(const unsigned short queryBegin, const unsigned short queryEnd, const MhpOccupancyList& mhpOccupancyList, const unsigned short minSpanLength);
 	// checks if the current alignment is a subset of another alignment
 	static bool CheckOverlap(const Alignment& al1, AlignmentSet::iterator& al2);
 	// stores our vector

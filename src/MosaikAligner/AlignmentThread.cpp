@@ -1528,8 +1528,6 @@ bool CAlignmentThread::AlignRead(CNaiveAlignmentSet& alignments,
 			}
 
 		} else {
-
-
 			GetReadCandidates(forwardRegions, mForwardRead, queryLength, alignments.GetFwdMhpOccupancyList());
 			GetReadCandidates(reverseRegions, mReverseRead, queryLength, alignments.GetRevMhpOccupancyList());
 
@@ -1896,7 +1894,11 @@ void CAlignmentThread::GetFastReadCandidate(HashRegion& region, char* query, con
 }
 
 // consolidates hash hits into read candidates
-void CAlignmentThread::GetReadCandidates(vector<HashRegion>& regions, char* query, const unsigned int queryLength, MhpOccupancyList* pMhpOccupancyList) {
+void CAlignmentThread::GetReadCandidates(
+    vector<HashRegion>& regions, 
+    char* query, 
+    const unsigned int& queryLength, 
+    MhpOccupancyList* pMhpOccupancyList) {
 
 	// localize the hash size
 	unsigned char hashSize = mSettings.HashSize;
@@ -1926,7 +1928,7 @@ void CAlignmentThread::GetReadCandidates(vector<HashRegion>& regions, char* quer
 	while(HashRegion* r = hrt.GetTraversalHashRegion()) {
 		if(!hrt.GetNextEntry()) break;
 		*hrIter = *r;
-		hrIter++;
+		++hrIter;
 	}
 
 	// sort the hash regions according to length (descending)
