@@ -32,7 +32,7 @@ public:
 	// resets the counter and hash positions values
 	void Clear(void);
 	// retrieves the genome location of the fragment
-	void Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, double& mhpOccupancy);
+	void Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash);
 	// load hash keys and positions from the file to memory
 	void LoadKeysNPositions(void);
 	// returns statistics about the hash table

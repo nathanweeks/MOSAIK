@@ -24,12 +24,12 @@ using namespace std;
 struct MhpOccupancyPosition {
 	unsigned short Begin;
 	unsigned short End;
-	double Occupancy;
+	//double Occupancy;
 
 	// our less-than operator
-	bool operator<(const MhpOccupancyPosition& al) const {
-		return Occupancy > al.Occupancy;
-	}
+	//bool operator<(const MhpOccupancyPosition& al) const {
+	//	return Occupancy > al.Occupancy;
+	//}
 };
 
 struct MhpOccupancyRegion {

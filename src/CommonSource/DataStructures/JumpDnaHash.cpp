@@ -185,7 +185,7 @@ void CJumpDnaHash::LoadKeysNPositions() {
 }
 
 // retrieves the genome location of the fragment
-void CJumpDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, double& mhpOccupancy) {
+void CJumpDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash) {
 
 	if ( !hasKeysNPositions ) {
 		cout << "ERROR: Have not loaded hash keys and positions before using them." << endl;
@@ -197,7 +197,6 @@ void CJumpDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, C
 	off_type position = 0;
 
 	// initialize the mhp occupancy
-	mhpOccupancy = 1.0;
 
 	// ===================
 	// check the MRU cache
@@ -282,10 +281,11 @@ void CJumpDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, C
 		// set the mhp occupancy
 		bool found = false;
 		if(mLimitPositions && (numPositions > mMaxHashPositions)) {
-			mhpOccupancy = (double)mMaxHashPositions / (double)numPositions;
 			numPositions = mMaxHashPositions;
 			found = true;
 		}
+		if (numPositions == 1)
+		  ++unique_hash;
 
 		unsigned int hashPosition = 0;
 		for(unsigned int i = 0; i < numPositions; i++) {
@@ -320,9 +320,10 @@ void CJumpDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, C
 
 		// set the mhp occupancy
 		if(mLimitPositions && (numPositions > mMaxHashPositions)) {
-			mhpOccupancy = (double)mMaxHashPositions / (double)numPositions;
 			numPositions = mMaxHashPositions;
 		}
+		if (numPositions == 1)
+		  ++unique_hash;
 
 		unsigned int bufferOffset = 0;
 		unsigned int hashPosition = 0;

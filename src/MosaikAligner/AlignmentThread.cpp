@@ -1498,8 +1498,9 @@ bool CAlignmentThread::AlignRead(CNaiveAlignmentSet& alignments,
 			int64_t forwardHashRegionLength = 0, reverseHashRegionLength = 0;
 			int64_t* pHashRegionLength = NULL;
 
-			GetFastReadCandidate(forwardHashRegion, mForwardRead, queryLength, alignments.GetFwdMhpOccupancyList());
-			GetFastReadCandidate(reverseHashRegion, mReverseRead, queryLength, alignments.GetRevMhpOccupancyList());
+			*numHash = 0;
+			GetFastReadCandidate(forwardHashRegion, mForwardRead, queryLength, alignments.GetFwdMhpOccupancyList(), *numHash);
+			GetFastReadCandidate(reverseHashRegion, mReverseRead, queryLength, alignments.GetRevMhpOccupancyList(), *numHash);
 
 			// detect failed hashes
 			if((forwardHashRegion.End == 0) && (reverseHashRegion.End == 0)) {
@@ -1528,10 +1529,11 @@ bool CAlignmentThread::AlignRead(CNaiveAlignmentSet& alignments,
 			}
 
 		} else {
-			GetReadCandidates(forwardRegions, mForwardRead, queryLength, alignments.GetFwdMhpOccupancyList());
-			GetReadCandidates(reverseRegions, mReverseRead, queryLength, alignments.GetRevMhpOccupancyList());
+			*numHash = 0;
+			GetReadCandidates(forwardRegions, mForwardRead, queryLength, alignments.GetFwdMhpOccupancyList(), *numHash);
+			GetReadCandidates(reverseRegions, mReverseRead, queryLength, alignments.GetRevMhpOccupancyList(), *numHash);
 
-			*numHash = forwardRegions.size() + reverseRegions.size();
+			//*numHash = forwardRegions.size() + reverseRegions.size();
 
 			// detect failed hashes
 			if(forwardRegions.empty() && reverseRegions.empty()) {
@@ -1857,10 +1859,16 @@ void CAlignmentThread::CreateHash(const char* fragment, const unsigned char frag
 }
 
 // consolidates hash hits into a read candidate (fast algorithm)
-void CAlignmentThread::GetFastReadCandidate(HashRegion& region, char* query, const unsigned int queryLength, MhpOccupancyList* pMhpOccupancyList) {
+void CAlignmentThread::GetFastReadCandidate(
+    HashRegion& region, 
+    char* query, 
+    const unsigned int queryLength, 
+    MhpOccupancyList* pMhpOccupancyList,
+    int& unique_hash) {
 
 	// localize the hash size
 	unsigned char hashSize = mSettings.HashSize;
+	unique_hash = 0;
 
 	// initialize the mhp occupancy list
 	const unsigned int numHashes = queryLength - hashSize + 1;
@@ -1876,7 +1884,7 @@ void CAlignmentThread::GetFastReadCandidate(HashRegion& region, char* query, con
 		CreateHash(pQuery, hashSize, key);
 		mhpIter->Begin = i;
 		mhpIter->End   = i + hashSize - 1;
-		mpDNAHash->Get(key, i, hrt, mhpIter->Occupancy);
+		mpDNAHash->Get(key, i, hrt, unique_hash);
 	}
 
 	// find the largest region
@@ -1898,7 +1906,8 @@ void CAlignmentThread::GetReadCandidates(
     vector<HashRegion>& regions, 
     char* query, 
     const unsigned int& queryLength, 
-    MhpOccupancyList* pMhpOccupancyList) {
+    MhpOccupancyList* pMhpOccupancyList,
+    int& unique_hash) {
 
 	// localize the hash size
 	unsigned char hashSize = mSettings.HashSize;
@@ -1917,7 +1926,7 @@ void CAlignmentThread::GetReadCandidates(
 		CreateHash(pQuery, hashSize, key);
 		mhpIter->Begin = i;
 		mhpIter->End   = i + hashSize - 1;
-		mpDNAHash->Get(key, i, hrt, mhpIter->Occupancy);
+		mpDNAHash->Get(key, i, hrt, unique_hash);
 	}
 
 	// add the consolidated regions

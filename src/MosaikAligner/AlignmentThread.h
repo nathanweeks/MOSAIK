@@ -402,9 +402,9 @@ private:
 	// creates the hash for a supplied fragment
 	void CreateHash(const char* fragment, const unsigned char fragmentLen, uint64_t& key);
 	// consolidates hash hits into a read candidate (fast algorithm)
-	void GetFastReadCandidate(HashRegion& region, char* query, const unsigned int queryLength, MhpOccupancyList* pMhpOccupancyList);
+	void GetFastReadCandidate(HashRegion& region, char* query, const unsigned int queryLength, MhpOccupancyList* pMhpOccupancyList, int& unique_hash);
 	// consolidates hash hits into read candidates
-	void GetReadCandidates(vector<HashRegion>& regions, char* query, const unsigned int& queryLength, MhpOccupancyList* pMhpOccupancyList);
+	void GetReadCandidates(vector<HashRegion>& regions, char* query, const unsigned int& queryLength, MhpOccupancyList* pMhpOccupancyList, int& unique_hash);
 	// settles the local Smith-Waterman window
 	bool SettleLocalSearchRegion( const LocalAlignmentModel& lam, const unsigned int refIndex
 		, const unsigned int uniqueBegin, const unsigned int uniqueEnd, unsigned int& localSearchBegin, unsigned int& localSearchEnd );
