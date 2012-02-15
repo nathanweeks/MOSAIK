@@ -58,7 +58,7 @@ public:
 	// dummy function
 	void Clear(void);
 	// retrieves the genome location of the fragment
-	void Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash);
+	void Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash, int& total_hash);
 	// returns the numbers of jump database cache hits and misses
 	void GetCacheStatistics(uint64_t& cacheHits, uint64_t& cacheMisses);
 	// dumps the contents of the hash table to standard output

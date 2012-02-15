@@ -185,7 +185,7 @@ void CJumpDnaHash::LoadKeysNPositions() {
 }
 
 // retrieves the genome location of the fragment
-void CJumpDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash) {
+void CJumpDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash, int& total_hash) {
 
 	if ( !hasKeysNPositions ) {
 		cout << "ERROR: Have not loaded hash keys and positions before using them." << endl;
@@ -284,6 +284,7 @@ void CJumpDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, C
 			numPositions = mMaxHashPositions;
 			found = true;
 		}
+		total_hash += numPositions;
 		if (numPositions == 1)
 		  ++unique_hash;
 
@@ -322,6 +323,7 @@ void CJumpDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, C
 		if(mLimitPositions && (numPositions > mMaxHashPositions)) {
 			numPositions = mMaxHashPositions;
 		}
+		total_hash += numPositions;
 		if (numPositions == 1)
 		  ++unique_hash;
 

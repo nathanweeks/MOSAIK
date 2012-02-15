@@ -126,7 +126,7 @@ void CMultiDnaHash::Clear(void) {
 }
 
 // retrieves the genome location of the fragment
-void CMultiDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash) {
+void CMultiDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash, int& total_hash) {
 
 	// use a fixed mhp occupancy
 	//mhpOccupancy = 1.0;
@@ -134,6 +134,7 @@ void CMultiDnaHash::Get(const uint64_t& key, const unsigned int& queryPosition, 
 	// retrieve the array position for this hash
 	unsigned int position = IndexFor(key);
 	if (position >= mCapacity) position = 0;
+	total_hash += position;
 	if (position == 1) ++unique_hash;
 
 	// set our found key variable to false

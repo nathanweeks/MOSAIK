@@ -28,7 +28,7 @@ public:
 	// resets the counter and hash positions values
 	virtual void Clear(void) = 0;
 	// retrieves the genome location of the fragment
-	virtual void Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash) = 0;
+	virtual void Get(const uint64_t& key, const unsigned int& queryPosition, CHashRegionTree& hrt, int& unique_hash, int& total_hash) = 0;
 	// dumps the contents of the hash table to standard output
 	virtual void Dump(void) = 0;
 	// redimension the hash table to the specified size

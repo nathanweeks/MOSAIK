@@ -33,7 +33,7 @@ struct Alignment {
 	unsigned int Owner;                // the temporary file that contains the alignment
 	unsigned int ReadGroupCode;        // the read group code (temp)
 	unsigned int NumMapped;            // the total number of mapped alignments
-	unsigned int NumHash;
+	double NumHash;
 	int FragmentLength;                // the fragment length with its pair
 	unsigned short QueryLength;        // used during filtering (temp)
 	unsigned short NumMismatches;      // number of mismatches
@@ -88,7 +88,7 @@ struct Alignment {
 		, Owner(0)
 		, ReadGroupCode(0)
 		, NumMapped(1)
-		, NumHash(0)
+		, NumHash(0.0)
 		, FragmentLength(0)
 		, QueryLength(0)
 		, NumMismatches(0)

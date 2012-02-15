@@ -729,11 +729,12 @@ void CAlignmentThread::AlignReadArchive(
 		// ====================
 
 		bool isMate1Aligned = false;
-		int numMate1Hashes  = 0;
+		double numMate1ForwardHashes  = 0.0;
+		double numMate1ReverseHashes  = 0.0;
 		mate1Alignments.Clear();
 		if( numMate1Bases != 0 && !isTooManyNMate1 ) {
 			// align the read
-			if (AlignRead(mate1Alignments, mr.Mate1.Bases.CData(), mr.Mate1.Qualities.CData(), numMate1Bases, mate1Status, &numMate1Hashes)) 
+			if (AlignRead(mate1Alignments, mr.Mate1.Bases.CData(), mr.Mate1.Qualities.CData(), numMate1Bases, mate1Status, &numMate1ForwardHashes, &numMate1ReverseHashes)) 
 				isMate1Aligned = true;
 		}
 
@@ -742,11 +743,12 @@ void CAlignmentThread::AlignReadArchive(
 		// =====================
 
 		bool isMate2Aligned = false;
-		int numMate2Hashes  = 0;
+		double numMate2ForwardHashes  = 0.0;
+		double numMate2ReverseHashes  = 0.0;
 		mate2Alignments.Clear();
 		if( numMate2Bases != 0 && !isTooManyNMate2 ) {
 			// align the read
-			if (AlignRead(mate2Alignments, mr.Mate2.Bases.CData(), mr.Mate2.Qualities.CData(), numMate2Bases, mate2Status, &numMate2Hashes)) 
+			if (AlignRead(mate2Alignments, mr.Mate2.Bases.CData(), mr.Mate2.Qualities.CData(), numMate2Bases, mate2Status, &numMate2ForwardHashes, &numMate2ReverseHashes)) 
 				isMate2Aligned = true;
 		}
 
@@ -849,8 +851,8 @@ void CAlignmentThread::AlignReadArchive(
 				exit(1);
 			}
 
-			al1.NumHash = numMate1Hashes;
-			al2.NumHash = numMate2Hashes;
+			al1.NumHash = al1.IsReverseStrand ? numMate1ReverseHashes : numMate1ForwardHashes;
+			al2.NumHash = al2.IsReverseStrand ? numMate2ReverseHashes : numMate2ForwardHashes;
 			SetRequiredInfo(al1, mate1Status, al2, mr.Mate1, mr, true, properPair1, true, isPairedEnd, true, true);
 			SetRequiredInfo(al2, mate2Status, al1, mr.Mate2, mr, true, properPair2, false, isPairedEnd, true, true);
 
@@ -931,8 +933,9 @@ void CAlignmentThread::AlignReadArchive(
 				exit(1);
 			}
 
-			al.NumHash         = isFirstMate ? numMate1Hashes : numMate2Hashes;
-			unmappedAl.NumHash = !isFirstMate ? numMate1Hashes : numMate2Hashes;
+			al.NumHash         = isFirstMate ? (al.IsReverseStrand ? numMate1ReverseHashes : numMate1ForwardHashes) 
+			                                 : (al.IsReverseStrand ? numMate2ReverseHashes : numMate2ForwardHashes);
+			unmappedAl.NumHash = !isFirstMate ? numMate1ReverseHashes : numMate2ReverseHashes;
 			SetRequiredInfo( al, (isFirstMate ? mate1Status : mate2Status), unmappedAl, (isFirstMate ? mr.Mate1 : mr.Mate2)
 				, mr, false, false, isFirstMate, isPairedEnd, true, false);
 			if (isPairedEnd)
@@ -1000,8 +1003,9 @@ void CAlignmentThread::AlignReadArchive(
 		} else if ( isMate1Empty && isMate2Empty ) {
 			
 			Alignment unmappedAl1, unmappedAl2;
-			unmappedAl1.NumHash = numMate1Hashes;
-			unmappedAl2.NumHash = numMate2Hashes;
+
+			unmappedAl1.NumHash = numMate1ReverseHashes;
+			unmappedAl2.NumHash = numMate2ReverseHashes;
 			SetRequiredInfo( unmappedAl1, mate1Status, unmappedAl2, mr.Mate1, mr, false, false, true, isPairedEnd, false, false );
 			SetRequiredInfo( unmappedAl2, mate2Status, unmappedAl1, mr.Mate2, mr, false, false, false, isPairedEnd, false, false );
 
@@ -1402,7 +1406,8 @@ bool CAlignmentThread::AlignRead(CNaiveAlignmentSet& alignments,
 				 const char* qualities, 
 				 const unsigned int& queryLength,
 				 AlignmentStatusType& status,
-				 int* numHash) {
+				 double* forward_occupancy,
+				 double* reverse_occupancy) {
 
 	// set the alignment status to be INITIAL
 	status = ALIGNMENTSTATUS_INITIAL;
@@ -1498,9 +1503,8 @@ bool CAlignmentThread::AlignRead(CNaiveAlignmentSet& alignments,
 			int64_t forwardHashRegionLength = 0, reverseHashRegionLength = 0;
 			int64_t* pHashRegionLength = NULL;
 
-			*numHash = 0;
-			GetFastReadCandidate(forwardHashRegion, mForwardRead, queryLength, alignments.GetFwdMhpOccupancyList(), *numHash);
-			GetFastReadCandidate(reverseHashRegion, mReverseRead, queryLength, alignments.GetRevMhpOccupancyList(), *numHash);
+			GetFastReadCandidate(forwardHashRegion, mForwardRead, queryLength, alignments.GetFwdMhpOccupancyList(), *forward_occupancy);
+			GetFastReadCandidate(reverseHashRegion, mReverseRead, queryLength, alignments.GetRevMhpOccupancyList(), *reverse_occupancy);
 
 			// detect failed hashes
 			if((forwardHashRegion.End == 0) && (reverseHashRegion.End == 0)) {
@@ -1529,9 +1533,8 @@ bool CAlignmentThread::AlignRead(CNaiveAlignmentSet& alignments,
 			}
 
 		} else {
-			*numHash = 0;
-			GetReadCandidates(forwardRegions, mForwardRead, queryLength, alignments.GetFwdMhpOccupancyList(), *numHash);
-			GetReadCandidates(reverseRegions, mReverseRead, queryLength, alignments.GetRevMhpOccupancyList(), *numHash);
+			GetReadCandidates(forwardRegions, mForwardRead, queryLength, alignments.GetFwdMhpOccupancyList(), *forward_occupancy);
+			GetReadCandidates(reverseRegions, mReverseRead, queryLength, alignments.GetRevMhpOccupancyList(), *reverse_occupancy);
 
 			//*numHash = forwardRegions.size() + reverseRegions.size();
 
@@ -1864,11 +1867,10 @@ void CAlignmentThread::GetFastReadCandidate(
     char* query, 
     const unsigned int queryLength, 
     MhpOccupancyList* pMhpOccupancyList,
-    int& unique_hash) {
+    double& hash_occupancy) {
 
 	// localize the hash size
 	unsigned char hashSize = mSettings.HashSize;
-	unique_hash = 0;
 
 	// initialize the mhp occupancy list
 	const unsigned int numHashes = queryLength - hashSize + 1;
@@ -1880,12 +1882,17 @@ void CAlignmentThread::GetFastReadCandidate(
 	uint64_t key;
 	char* pQuery = query;
 
+	int unique_hash = 0;
+	int total_hash  = 0;
+
 	for(unsigned int i = 0; i < numHashes; ++i, ++pQuery, ++mhpIter) {
 		CreateHash(pQuery, hashSize, key);
 		mhpIter->Begin = i;
 		mhpIter->End   = i + hashSize - 1;
-		mpDNAHash->Get(key, i, hrt, unique_hash);
+		mpDNAHash->Get(key, i, hrt, unique_hash, total_hash);
 	}
+	if (unique_hash != 0) hash_occupancy = unique_hash / total_hash;
+	else hash_occupancy = 0;
 
 	// find the largest region
 	unsigned int regionLength, largestRegionLength = 0;
@@ -1907,7 +1914,7 @@ void CAlignmentThread::GetReadCandidates(
     char* query, 
     const unsigned int& queryLength, 
     MhpOccupancyList* pMhpOccupancyList,
-    int& unique_hash) {
+    double& hash_occupancy) {
 
 	// localize the hash size
 	unsigned char hashSize = mSettings.HashSize;
@@ -1922,12 +1929,18 @@ void CAlignmentThread::GetReadCandidates(
 	uint64_t key;
 	char* pQuery = query;
 
+	int unique_hash = 0;
+	int total_hash  = 0;
+
 	for(unsigned int i = 0; i < numHashes; ++i, ++pQuery, ++mhpIter) {
 		CreateHash(pQuery, hashSize, key);
 		mhpIter->Begin = i;
 		mhpIter->End   = i + hashSize - 1;
-		mpDNAHash->Get(key, i, hrt, unique_hash);
+		mpDNAHash->Get(key, i, hrt, unique_hash, total_hash);
 	}
+	if (unique_hash > 0) hash_occupancy = static_cast<double>(unique_hash) / static_cast<double>(total_hash);
+	else hash_occupancy = 0;
+
 
 	// add the consolidated regions
 	regions.resize(hrt.GetCount());
