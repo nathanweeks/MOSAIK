@@ -1940,6 +1940,7 @@ void CAlignmentThread::GetReadCandidates(
 	}
 	if (unique_hash > 0) hash_occupancy = static_cast<double>(unique_hash) / static_cast<double>(total_hash);
 	else hash_occupancy = 0;
+	//hash_occupancy = static_cast<double>(unique_hash);
 
 
 	// add the consolidated regions

@@ -37,12 +37,13 @@ unsigned char QualityNeuralNetwork::GetQualitySe(const FannInputs& annInputs) {
 
   fann_inputs.clear();
   
+  //fann_inputs.push_back(annInputs.swScore);
   float swDiff = annInputs.swScore - annInputs.nextSwScore;
-  fann_inputs.push_back(swDiff / (float)(annInputs.read_length * SwMatchScore));
+  fann_inputs.push_back(static_cast<float>(swDiff) / static_cast<float>(annInputs.read_length * SwMatchScore));
   fann_inputs.push_back(annInputs.longest_match / (float)annInputs.read_length);
   fann_inputs.push_back(annInputs.entropy);
-  fann_inputs.push_back(log10((float)(annInputs.numMappings + 1)));
-  fann_inputs.push_back(log10((float)(annInputs.numHashes + 1)));
+  fann_inputs.push_back(log10(static_cast<float>(annInputs.numMappings + 1)));
+  fann_inputs.push_back(log10(static_cast<float>(annInputs.numHashes + 1)));
   
   calc_out = fann_run(se_ann, &fann_inputs[0]);
   return float2phred(1 - (1 + calc_out[0]) / 2);
@@ -56,31 +57,33 @@ unsigned char QualityNeuralNetwork::GetQualityPe(const FannInputs& annInputs1,
 
   fann_inputs.clear();
 
+  fann_inputs.push_back(annInputs1.swScore);
   float swDiff1 = annInputs1.swScore - annInputs1.nextSwScore;
-  fann_inputs.push_back(swDiff1 / (float)(annInputs1.read_length * SwMatchScore));
-  fann_inputs.push_back(annInputs1.longest_match / (float)annInputs1.read_length);
+  fann_inputs.push_back(swDiff1 / static_cast<float>(annInputs1.read_length * SwMatchScore));
+  //fann_inputs.push_back(annInputs1.longest_match / (float)annInputs1.read_length);
   fann_inputs.push_back(annInputs1.entropy);
   //if (annInputs1.numHashes == 0) { // the mate is rescued by mate2
   //  fann_inputs.push_back(log10((float)(annInputs2.numMappings + 1)));
   //  fann_inputs.push_back(log10((float)(annInputs2.numHashes + 1)));
   //} else {
-    fann_inputs.push_back(log10((float)(annInputs1.numMappings + 1)));
-    fann_inputs.push_back(log10((float)(annInputs1.numHashes + 1)));
+    //fann_inputs.push_back(log10(static_cast<float>(annInputs1.numMappings + 1)));
+    fann_inputs.push_back(annInputs1.numHashes);
   //}
 
+  fann_inputs.push_back(annInputs2.swScore);
   float swDiff2 = annInputs2.swScore - annInputs2.nextSwScore;
-  fann_inputs.push_back(swDiff2 / (float)(annInputs2.read_length * SwMatchScore));
-  fann_inputs.push_back(annInputs2.longest_match / (float)annInputs2.read_length);
+  fann_inputs.push_back(swDiff2 / static_cast<float>(annInputs2.read_length * SwMatchScore));
+  //fann_inputs.push_back(annInputs2.longest_match / (float)annInputs2.read_length);
   fann_inputs.push_back(annInputs2.entropy);
   //if (annInputs2.numHashes == 0) { // the mate is rescued by mate1
   //  fann_inputs.push_back(log10((float)(annInputs1.numMappings + 1)));
   //  fann_inputs.push_back(log10((float)(annInputs1.numHashes + 1)));
   //} else {
-    fann_inputs.push_back(log10((float)(annInputs2.numMappings + 1)));
-    fann_inputs.push_back(log10((float)(annInputs2.numHashes + 1)));
+    //fann_inputs.push_back(log10(static_cast<float>(annInputs2.numMappings + 1)));
+    fann_inputs.push_back(annInputs2.numHashes);
   //}
 
-  fann_inputs.push_back(log10((float)(fragment_length_diff + 1)));
+  fann_inputs.push_back(log10(static_cast<float>(fragment_length_diff + 1)));
 
   calc_out = fann_run(pe_ann, &fann_inputs[0]);
 

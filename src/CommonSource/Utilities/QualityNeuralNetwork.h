@@ -18,7 +18,7 @@ class QualityNeuralNetwork {
     int longest_match;
     float entropy;
     int numMappings;
-    int numHashes;
+    float numHashes;
   };
   QualityNeuralNetwork()
       : pe_ann(NULL)
